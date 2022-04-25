@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>One Question</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+    <div class="row">
+        <div class="col-md-11">
+            <br />
+            <button class="btn btn-outline-success" id="btnAdd" onclick="AddProduct()">Ekle</button>
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Ürün Adı</th>
+                        <th scope="col">Birim Fiyat</th>
+                        <th scope="col">Miktar</th>
+                        <th scope="col">Toplam Tutar</th>
+                        <th scope="col">İndirim %</th>
+                        <th scope="col">İndirim Tutar</th>
+                        <th scope="col">İndirimli Toplam Tutar</th>
+                        <th scope="col">KDV %</th>
+                        <th scope="col">KDV Tutar</th>
+                        <th scope="col">KDV'li Topam Tutar</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody" class="col-md-11">
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.4.1/dist/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+    <script>
+
+        //document.addEventListener("DOMContentLoaded", function () {
+
+        //    var addButton = document.getElementById("btnAdd");
+
+
+
+        //    addButton.onclick = function () {
+
+        //        var quantity = document.getElementsByName("quantity")
+        //        var unitprice = document.getElementsByName("unitprice")
+        //        var discount = document.getElementsByName("discount")
+        //        var kdv = document.getElementsByName("kdv")
+
+        //        var totalPrice = parseInt(quantity.value) * parseInt(unitprice.value)
+
+        //        alert(totalPrice);
+        //    }
+
+
+        //    function TotalPrice() {
+
+        //        return totalPrice;
+        //    }
+
+        //    function refreshList() {
+
+        //    }
+        //});
+
+
+
+        var products = [];
+
+        class Product {
+            constructor() {
+
+                //field declaration
+                this.productName = "test ürün";
+                this.unitPrice = 1;
+                this.quantity = 1;
+                this.totalPrice = null;
+                this.discountPercentage = 0;
+                this.discount = null;
+                this.discountedTotalPrice = null;
+                this.kdvPercentage = 1;
+                this.kdv = 1;
+                this.kdvTotalPrice = null;
+
+                this.tRowProductNameInput = null;
+                this.tRowUnitPriceInput = null;
+                this.tRowQuantityInput = null;
+                this.tRowTotalPriceInput = null;
+                this.tRowDiscountPercentageInput = null;
+                this.tRowDiscountInput = null;
+                this.tRowDiscountTotalPriceInput = null;
+                this.tRowKdvInput = null;
+                this.tRowKdvPriceInput = null;
+                this.tRowTotalPriceWithKdvInput = null;
+
+            }
+
+            get ProductName() { return this.productName; }
+            set ProductName(value) { return this.productName = value; }
+
+            get UnitPrice() { return this.unitPrice; }
+            set UnitPrice(value) { return this.unitPrice = value; }
+
+            get Quantity() { return this.quantity; }
+            set Quantity(value) { return this.quantity = value; }
+
+            get TotalPrice() { return this.totalPrice; }
+            set TotalPrice(value) { return this.totalPrice = value; }
+
+            get DiscountPercentage() { return this.discountPercentage; }
+            set DiscountPercentage(value) { return this.discountPercentage = value; }
+
+            get Discount() { return this.discount }
+            set Discount(value) { return this.discount = value; }
+
+            get DiscountTotalPrice() { return this.discountedTotalPrice; }
+            set DiscountTotalPrice(value) { return this.discountedTotalPrice = value; }
+
+            get KdvPercentage() { return this.kdvPercentage; }
+            set KdvPercentage(value) { return this.kdvPercentage = value; }
+
+            get Kdv() { return this.kdv; }
+            set Kdv(value) { return this.kdv = value; }
+
+            get KdvTotalPrice() { return this.kdvTotalPrice; }
+            set KdvTotalPrice(value) { return this.kdvTotalPrice = value; }
+
+            ///Toplam hesaplaması burada yapılıyor
+            get TotalPriceCalculate() {
+                return this.Quantity * this.UnitPrice;
+            }
+
+            get DiscountedCalculate() {
+                return ((this.TotalPrice * this.DiscountPercentage) / 100);
+            }
+
+            get KdvCalculate() {
+                return ((this.TotalPrice * this.KdvPercentage) / 100);
+            }
+
+            changeValue() {
+                //Toplam Tutar Hesaplaması
+                this.TotalPrice = this.TotalPriceCalculate;
+                this.tRowTotalPriceInput.value = this.TotalPrice;
+
+                //İndirimli tutar
+                
+                this.Discount = this.DiscountedCalculate;
+                this.tRowDiscountInput.value = this.Discount;
+
+                //indirimli Toplam Fiyat
+                this.DiscountTotalPrice = this.TotalPrice - this.Discount;
+                this.tRowDiscountTotalPriceInput.value = this.DiscountTotalPrice;
+
+                //kdv tutar
+                this.Kdv = this.KdvCalculate;
+                this.tRowKdvPriceInput.value = this.Kdv;
+
+                //Kdv li toplam Tutar
+                this.KdvTotalPrice = this.DiscountTotalPrice + this.Kdv
+                this.tRowTotalPriceWithKdvInput.value = this.KdvTotalPrice;
+
+            }
+
+            getHtml() {
+                var row = document.createElement("tr");
+                row.setAttribute("class","col-md-11")
+
+                var tRowNumber = document.createElement("th");
+                tRowNumber.setAttribute("scope", "row");
+                tRowNumber.innerHTML = "1";
+                row.appendChild(tRowNumber);
+
+                var tRowProductName = document.createElement("td");
+                this.tRowProductNameInput = document.createElement("input");
+                tRowProductName.appendChild(this.tRowProductNameInput);
+                row.appendChild(tRowProductName);
+
+                var tRowUnitPrice = document.createElement("td");
+                this.tRowUnitPriceInput = document.createElement("input");
+                /*tRowUnitPriceInput.setAttribute("readonly", "readonly");*/
+                this.tRowUnitPriceInput.type = "number";
+                this.tRowUnitPriceInput.value = this.UnitPrice;
+                this.tRowUnitPriceInput.onchange = () => {
+                    this.UnitPrice = this.tRowUnitPriceInput.value;
+                    this.changeValue();
+                }
+                tRowUnitPrice.appendChild(this.tRowUnitPriceInput);
+                row.appendChild(tRowUnitPrice);
+
+                var tRowQuantity = document.createElement("td");
+                this.tRowQuantityInput = document.createElement("input");
+                this.tRowQuantityInput.type = "number";
+                this.tRowQuantityInput.value = this.Quantity;
+                this.tRowQuantityInput.onchange = () => {
+                    this.Quantity = this.tRowQuantityInput.value;
+                    this.changeValue();
+                }
+                tRowQuantity.appendChild(this.tRowQuantityInput);
+                row.appendChild(tRowQuantity);
+
+                var tRowTotalPrice = document.createElement("td");
+                this.tRowTotalPriceInput = document.createElement("input");
+                this.tRowTotalPriceInput.setAttribute("readonly", "readonly")
+                this.tRowTotalPriceInput.value = this.TotalPrice;
+                tRowTotalPrice.appendChild(this.tRowTotalPriceInput);
+                row.appendChild(tRowTotalPrice);
+
+
+                var tRowDiscountPercentage = document.createElement("td");
+                this.tRowDiscountPercentageInput = document.createElement("input");
+                this.tRowDiscountPercentageInput.onchange = () => {
+                    this.DiscountPercentage = this.tRowDiscountPercentageInput.value;
+                    this.changeValue();
+                }
+                tRowDiscountPercentage.appendChild(this.tRowDiscountPercentageInput);
+
+                row.appendChild(tRowDiscountPercentage);
+
+                var tRowDiscount = document.createElement("td");
+                this.tRowDiscountInput = document.createElement("input");
+                tRowDiscount.appendChild(this.tRowDiscountInput);
+                row.appendChild(tRowDiscount);
+
+                var tRowDiscountTotalPrice = document.createElement("td");
+                this.tRowDiscountTotalPriceInput = document.createElement("input");
+                this.tRowDiscountTotalPriceInput.setAttribute("readonly", "readonly")
+                tRowDiscountTotalPrice.appendChild(this.tRowDiscountTotalPriceInput);
+                row.appendChild(tRowDiscountTotalPrice);
+
+                var tRowKdv = document.createElement("td");
+                this.tRowKdvInput = document.createElement("input");
+                this.tRowKdvInput.onchange = () => {
+                    this.KdvPercentage = this.tRowKdvInput.value;
+                    this.changeValue();
+                }
+                tRowKdv.appendChild(this.tRowKdvInput);
+                row.appendChild(tRowKdv);
+
+                var tRowKdvPrice = document.createElement("td");
+                this.tRowKdvPriceInput = document.createElement("input");
+                tRowKdvPrice.appendChild(this.tRowKdvPriceInput);
+                row.appendChild(tRowKdvPrice);
+
+                var tRowTotalPriceWithKdv = document.createElement("td");
+                this.tRowTotalPriceWithKdvInput = document.createElement("input");
+                this.tRowTotalPriceWithKdvInput.setAttribute("readonly", "readonly");
+                tRowTotalPriceWithKdv.appendChild(this.tRowTotalPriceWithKdvInput);
+                row.appendChild(tRowTotalPriceWithKdv);
+
+                return row;
+            }
+        }
+
+        function AddProduct() {
+            var product = new Product();
+            products.push(product);
+
+            RefreshGrid();
+        }
+
+        function RefreshGrid() {
+            var tBody = document.getElementById("tbody");
+            tBody.innerHTML = "";
+            for (var i = 0; i < products.length; i++) {
+                tBody.appendChild(products[i].getHtml())
+            }
+        }
+
+    </script>
+</body>
+</html>
